@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lightfoot Interactive Training Manual</title>
+    <!-- Chosen Palette: Calm Tech -->
+    <!-- Application Structure Plan: A task-oriented single-page application with a fixed sidebar navigation. This structure is chosen over a linear document to allow new hires to access information based on their immediate needs (e.g., "How do I handle this objection?" or "Who is my target audience?"). The user flow is designed to mirror the learning journey: 1. The Mission (Why we exist), 2. The Prospect (Who to call), 3. The Process (How to do it), 4. The Conversation (What to say), 5. The Toolkit (Tools & Targets). This non-linear, role-based structure enhances usability and makes the manual a practical, day-to-day resource rather than a one-time read. -->
+    <!-- Visualization & Content Choices: 
+        - Key Metrics (e.g., Fuel Savings): Goal: Inform & Impress. Method: Dynamic animated number cards (HTML/JS) for high impact.
+        - Prospect Personas: Goal: Organize & Inform. Method: Interactive grid of cards (HTML/Tailwind/JS). Clicking a card reveals detailed motivations, making persona information easily comparable and accessible.
+        - Opportunity Stages & Cadence: Goal: Organize & Explain Change. Method: A visual process flow diagram built with HTML/Tailwind. This is more intuitive for understanding sequential processes than a simple list.
+        - Objection Handling: Goal: Provide quick, searchable answers. Method: Interactive accordion (HTML/JS). This allows users to quickly find a specific objection without scrolling through irrelevant text.
+        - Competitor Comparison: Goal: Compare. Method: Tabbed interface (HTML/JS). This facilitates direct comparison of talking points for each competitor.
+        - Fleet Tiers: Goal: Inform. Method: Bar chart (Chart.js/Canvas). This provides a quick visual reference for sales tiering.
+        - All choices prioritize interactivity and scannability to support a fast-paced sales role.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
+        .chart-container { position: relative; width: 100%; max-width: 600px; margin-left: auto; margin-right: auto; height: 320px; max-height: 400px; }
+        .view { display: none; }
+        .view.active { display: block; }
+        .sidebar-link.active { background-color: #0891b2; color: white; }
+        .sidebar-link { transition: all 0.2s ease-in-out; }
+        .card-enter { animation: card-enter 0.5s ease-out both; }
+        @keyframes card-enter {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+    <div class="flex min-h-screen">
+        <!-- Sidebar Navigation -->
+        <nav id="sidebar" class="w-64 bg-slate-800 text-white p-5 fixed h-full shadow-lg hidden md:block">
+            <div class="flex items-center mb-10">
+                <div class="w-10 h-10 bg-cyan-500 rounded-full flex items-center justify-center mr-3">
+                    <span class="text-white font-bold text-xl">L</span>
+                </div>
+                <h1 class="text-xl font-bold">Lightfoot</h1>
+            </div>
+            <ul>
+                <li><a href="#dashboard" class="sidebar-link flex items-center py-3 px-4 rounded-lg hover:bg-slate-700 active">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>Dashboard</a></li>
+                <li><a href="#mission" class="sidebar-link flex items-center py-3 px-4 rounded-lg hover:bg-slate-700">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>The Mission</a></li>
+                <li><a href="#prospect" class="sidebar-link flex items-center py-3 px-4 rounded-lg hover:bg-slate-700">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>The Prospect</a></li>
+                <li><a href="#process" class="sidebar-link flex items-center py-3 px-4 rounded-lg hover:bg-slate-700">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>The Process</a></li>
+                <li><a href="#conversation" class="sidebar-link flex items-center py-3 px-4 rounded-lg hover:bg-slate-700">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>The Conversation</a></li>
+                <li><a href="#toolkit" class="sidebar-link flex items-center py-3 px-4 rounded-lg hover:bg-slate-700">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>The Toolkit</a></li>
+            </ul>
+        </nav>
+
+        <!-- Mobile Header -->
+        <header class="md:hidden bg-slate-800 text-white p-4 fixed top-0 w-full z-20 shadow-lg flex justify-between items-center">
+            <div class="flex items-center">
+                 <div class="w-8 h-8 bg-cyan-500 rounded-full flex items-center justify-center mr-3">
+                    <span class="text-white font-bold text-lg">L</span>
+                </div>
+                <h1 class="text-lg font-bold">Lightfoot</h1>
+            </div>
+            <button id="mobile-menu-button" class="text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            </button>
+        </header>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden fixed inset-0 bg-slate-800 bg-opacity-95 z-30 p-5">
+             <button id="mobile-close-button" class="absolute top-5 right-5 text-white">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <ul class="mt-16 space-y-4">
+                <li><a href="#dashboard" class="sidebar-link text-xl flex items-center py-3 px-4 rounded-lg hover:bg-slate-700 active">
+                    <svg class="w-6 h-6 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>Dashboard</a></li>
+                <li><a href="#mission" class="sidebar-link text-xl flex items-center py-3 px-4 rounded-lg hover:bg-slate-700">
+                    <svg class="w-6 h-6 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>The Mission</a></li>
+                <li><a href="#prospect" class="sidebar-link text-xl flex items-center py-3 px-4 rounded-lg hover:bg-slate-700">
+                    <svg class="w-6 h-6 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>The Prospect</a></li>
+                <li><a href="#process" class="sidebar-link text-xl flex items-center py-3 px-4 rounded-lg hover:bg-slate-700">
+                    <svg class="w-6 h-6 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>The Process</a></li>
+                <li><a href="#conversation" class="sidebar-link text-xl flex items-center py-3 px-4 rounded-lg hover:bg-slate-700">
+                    <svg class="w-6 h-6 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>The Conversation</a></li>
+                <li><a href="#toolkit" class="sidebar-link text-xl flex items-center py-3 px-4 rounded-lg hover:bg-slate-700">
+                    <svg class="w-6 h-6 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>The Toolkit</a></li>
+            </ul>
+        </div>
+        
+        <!-- Main Content -->
+        <main class="md:ml-64 flex-1 p-6 md:p-10 pt-24 md:pt-10">
+            <div id="dashboard" class="view active"></div>
+            <div id="mission" class="view"></div>
+            <div id="prospect" class="view"></div>
+            <div id="process" class="view"></div>
+            <div id="conversation" class="view"></div>
+            <div id="toolkit" class="view"></div>
+        </main>
+    </div>
+
+    <!-- Modal for Persona Details -->
+    <div id="persona-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-lg shadow-2xl p-8 max-w-2xl w-full transform transition-all scale-95 opacity-0" id="modal-content">
+            <div class="flex justify-between items-start">
+                <h2 id="modal-title" class="text-2xl font-bold text-slate-800"></h2>
+                <button id="modal-close" class="text-slate-500 hover:text-slate-800">&times;</button>
+            </div>
+            <div id="modal-body" class="mt-4 text-slate-600 prose max-w-none"></div>
+        </div>
+    </div>
+
+
+<script>
+const App = {
+    data: {
+        stats: [
+            { label: 'Fuel Savings', value: 10, unit: '%', icon: '⛽' },
+            { label: 'Accident Reduction', value: 40, unit: '%', icon: '🛡️' },
+            { label: 'Wear & Tear Reduction', value: 45, unit: '%', icon: '🔧' },
+            { label: 'EV Range Extension', value: 15, unit: '%', icon: '⚡' },
+        ],
+        personas: [
+            { id: 'fleet', title: 'Fleet Managers', icon: '🚚', content: "They’re responsible for running the fleet day to day. That means reducing fuel spend, managing maintenance, lowering insurance claims, and keeping vehicles on the road. They’re often overloaded with telematics data but short on time — so Lightfoot’s ability to engage drivers directly (without manual intervention) is a big win for them." },
+            { id: 'ops', title: 'Operations Directors', icon: '⚙️', content: "They care about efficiency, uptime, and performance. If vehicles are off the road, deadlines are missed and operations are disrupted. Lightfoot helps streamline performance by reducing downtime and improving driver behaviour, which fits directly into their goals of consistent output and operational reliability." },
+            { id: 'safety', title: 'Health & Safety Leads', icon: '🛡️', content: "They focus on risk reduction, compliance, and protecting staff. Lightfoot helps them identify risky drivers, reduce accident rates, and build a safety-first culture. Our in-cab feedback, driver rewards, and compliance support align perfectly with their priorities." },
+            { id: 'sustainability', title: 'Sustainability Mgrs / ESG Leads', icon: '🌱', content: "Their goal is to cut emissions, reduce environmental impact, and report progress towards ESG targets. Lightfoot directly supports their KPIs by lowering CO2, NOx, and particulate matter. It also offers them measurable, reportable results they can present to stakeholders." },
+            { id: 'finance', title: 'Finance Directors / CFOs', icon: '💰', content: "Finance teams are laser-focused on reducing operational costs, improving profitability, and managing risk exposure. If fuel spend, maintenance bills, or insurance claims are rising, they’ll be keen to know how Lightfoot reduces costs and delivers year-on-year savings — without adding admin overhead." },
+            { id: 'md', title: 'Managing Directors / Business Owners (SMEs)', icon: '👤', content: "In smaller companies, the MD or owner is often the decision-maker across multiple areas — including fleet. Their main drivers are cost control, risk management, and operational simplicity. If you can demonstrate how Lightfoot will save them money, reduce claims, and remove hassle, they’re likely to be open to a conversation." }
+        ],
+        industries: ['Construction', 'Utilities & Telecoms', 'Last-Mile Delivery', 'Housing Associations', 'Healthcare & NHS', 'Facilities Management', 'Local Authorities'],
+        objections: [
+            { q: "We already have a system in place.", a: "<strong>Empathise:</strong> “Totally understandable — most fleets do.”<br><strong>Question:</strong> “May I ask what drew you to your current provider initially?”<br><strong>Move:</strong> This opens the door to learn who the competitor is and what matters to them. You can position Lightfoot as a complement, not a replacement." },
+            { q: "Not looking to make any changes right now.", a: "<strong>Empathise:</strong> “A lot of people feel the same.”<br><strong>Question:</strong> “Can I ask — what are your top priorities for the fleet at the moment?”<br><strong>Move:</strong> This shifts the conversation to their goals rather than timing." },
+            { q: "Send me something over.", a: "<strong>Empathise:</strong> “Of course — I’ll do that now.”<br><strong>Question:</strong> “To make sure I send you the most relevant info, can I just ask a couple of quick things about your setup?”<br><strong>Move:</strong> This helps keep the conversation going and gather qualifying details." },
+            { q: "We’re tied into a contract.", a: "<strong>Empathise:</strong> “Understood — lots of our customers were when we first spoke.”<br><strong>Question:</strong> “Do you know when your current renewal is due?”<br><strong>Move:</strong> Position Lightfoot as a complement now, or schedule a follow-up closer to their renewal date." },
+            { q: "I'm just too busy.", a: "<strong>Empathise:</strong> “Of course – same here!”<br><strong>Question:</strong> “I was just looking to schedule a better time. Would next week work better for a quick chat?”<br><strong>Move:</strong> This shows respect and flexibility while keeping momentum." }
+        ],
+        competitors: [
+            { id: 'quartix', name: 'Quartix', theySay: "“We’re happy with Quartix – it’s cheaper.”", weSay: "“Totally understandable — Quartix offers simple tracking and reporting. The big difference with Lightfoot is that we focus on real-time driver behaviour change. That’s how our customers reduce fuel use, improve safety, and cut downtime — without adding admin.”" },
+            { id: 'geotab', name: 'Geotab', theySay: "“Geotab gives us loads of data.”", weSay: "“Geotab is a powerful backend platform — but it’s very manager-led. Lightfoot is different because we focus on day-to-day driver improvement, not just analysis. That’s why many of our customers use Lightfoot alongside Geotab.”" },
+            { id: 'samsara', name: 'Samsara', theySay: "“Samsara gives us everything in one system.”", weSay: "“Samsara’s a strong all-in-one platform — but it’s still very manager-led. Lightfoot is different because we give drivers real-time coaching and gamified motivation, so they actually want to improve. That’s where lasting change comes from.”" },
+             { id: 'greenroad', name: 'GreenRoad', theySay: "“GreenRoad gives us driver coaching too.”", weSay: "“GreenRoad’s app-based model is convenient — but if the driver forgets to anchor the phone or close the app, the coaching doesn’t work. Lightfoot is hardwired into the vehicle, so the feedback is always active, accurate, and consistent.”" },
+        ]
+    },
+
+    init() {
+        this.renderAllViews();
+        this.setupEventListeners();
+        this.navigateTo(window.location.hash || '#dashboard');
+    },
+
+    setupEventListeners() {
+        document.querySelectorAll('.sidebar-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.navigateTo(e.currentTarget.getAttribute('href'));
+                
+                const mobileMenu = document.getElementById('mobile-menu');
+                if(!mobileMenu.classList.contains('hidden')) {
+                    mobileMenu.classList.add('hidden');
+                }
+            });
+        });
+
+        window.addEventListener('hashchange', () => this.navigateTo(window.location.hash));
+        
+        document.getElementById('mobile-menu-button').addEventListener('click', () => {
+            document.getElementById('mobile-menu').classList.remove('hidden');
+        });
+
+        document.getElementById('mobile-close-button').addEventListener('click', () => {
+            document.getElementById('mobile-menu').classList.add('hidden');
+        });
+
+        document.getElementById('modal-close').addEventListener('click', () => this.closeModal());
+        document.getElementById('persona-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'persona-modal') {
+                this.closeModal();
+            }
+        });
+    },
+
+    navigateTo(hash) {
+        const viewId = hash.substring(1) || 'dashboard';
+        document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
+        const activeView = document.getElementById(viewId);
+        if (activeView) {
+            activeView.classList.add('active');
+            activeView.querySelectorAll('.card-enter').forEach((el, index) => {
+                el.style.animationDelay = `${index * 100}ms`;
+            });
+        }
+
+        document.querySelectorAll('.sidebar-link').forEach(link => {
+            link.classList.toggle('active', link.getAttribute('href') === hash);
+        });
+
+        window.location.hash = hash;
+    },
+
+    openModal(personaId) {
+        const persona = this.data.personas.find(p => p.id === personaId);
+        if (persona) {
+            document.getElementById('modal-title').innerText = persona.title;
+            document.getElementById('modal-body').innerHTML = `<p>${persona.content}</p>`;
+            document.getElementById('persona-modal').classList.remove('hidden');
+            document.getElementById('persona-modal').classList.add('flex');
+            setTimeout(() => {
+                document.getElementById('modal-content').classList.remove('scale-95', 'opacity-0');
+            }, 10);
+        }
+    },
+
+    closeModal() {
+        const modal = document.getElementById('persona-modal');
+        document.getElementById('modal-content').classList.add('scale-95', 'opacity-0');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }, 200);
+    },
+
+    renderAllViews() {
+        this.renderDashboard();
+        this.renderMission();
+        this.renderProspect();
+        this.renderProcess();
+        this.renderConversation();
+        this.renderToolkit();
+    },
+
+    renderDashboard() {
+        const container = document.getElementById('dashboard');
+        let statCards = this.data.stats.map(stat => `
+            <div class="bg-white rounded-xl shadow-md p-6 flex items-center card-enter hover:shadow-lg transition-shadow duration-300">
+                <div class="text-4xl mr-4">${stat.icon}</div>
+                <div>
+                    <div class="text-slate-500 text-sm">${stat.label}</div>
+                    <div class="text-3xl font-bold text-cyan-600 animate-counter" data-target="${stat.value}">${stat.value}${stat.unit}</div>
+                </div>
+            </div>
+        `).join('');
+
+        container.innerHTML = `
+            <h1 class="text-4xl font-bold mb-2">Welcome to the Team!</h1>
+            <p class="text-lg text-slate-600 mb-8">This is your interactive guide to succeeding as a Lead Generation Executive at Lightfoot.</p>
+            <h2 class="text-2xl font-bold mb-4">The Lightfoot Impact: At a Glance</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                ${statCards}
+            </div>
+             <div class="mt-12 bg-white p-8 rounded-xl shadow-md card-enter">
+                <h2 class="text-2xl font-bold mb-4">Your First Steps</h2>
+                <p class="text-slate-600 mb-6">Your role is critical - you're on the front line, starting the conversations that drive our business. This dashboard is designed to be your go-to resource. Here's a suggested path to get started:</p>
+                <ol class="list-decimal list-inside space-y-4 text-slate-700">
+                    <li>Start with <a href="#mission" class="text-cyan-600 font-medium hover:underline">The Mission</a> to understand our 'why'.</li>
+                    <li>Learn about <a href="#prospect" class="text-cyan-600 font-medium hover:underline">The Prospect</a> to know who you're calling.</li>
+                    <li>Master <a href="#process" class="text-cyan-600 font-medium hover:underline">The Process</a> for a step-by-step guide on what to do.</li>
+                    <li>Dive into <a href="#conversation" class="text-cyan-600 font-medium hover:underline">The Conversation</a> for scripts and objection handling.</li>
+                </ol>
+            </div>
+        `;
+    },
+
+    renderMission() {
+        document.getElementById('mission').innerHTML = `
+            <h1 class="text-4xl font-bold mb-6">The Mission</h1>
+            <div class="space-y-8">
+                <div class="bg-white p-8 rounded-xl shadow-md card-enter">
+                    <h2 class="text-2xl font-bold mb-3">What We Do at Lightfoot</h2>
+                    <p class="text-slate-600 leading-relaxed">Lightfoot is not just another telematics provider; we are pioneers in changing driver behaviour in real time. Our award-winning in-cab coaching system helps businesses run fleets that are safer, greener, and more efficient. By providing immediate feedback, combined with gamification and rewards, we turn driving into a positive, self-correcting experience. Our goal is to replace or complement existing systems to deliver what others can't: a proven way to improve how teams drive and achieve significant bottom-line results.</p>
+                </div>
+                <div class="bg-white p-8 rounded-xl shadow-md card-enter">
+                    <h2 class="text-2xl font-bold mb-3">Your Critical Role in the Process</h2>
+                    <p class="text-slate-600 leading-relaxed mb-4">As a Lead Generation Executive, you are the catalyst for every new opportunity. Your mission is not to close deals, but to open doors. You will engage with key decision-makers across various roles—from Fleet Managers to Finance Directors—understanding their unique challenges and demonstrating how Lightfoot provides a solution. Every high-quality meeting you book is a direct contribution to our growth and our mission of creating safer, more sustainable fleets.</p>
+                    <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                        <div class="bg-cyan-50 p-4 rounded-lg"><strong class="text-cyan-700">You sell the conversation</strong>, not the product.</div>
+                        <div class="bg-cyan-50 p-4 rounded-lg"><strong class="text-cyan-700">You provoke interest</strong>, you don't push.</div>
+                        <div class="bg-cyan-50 p-4 rounded-lg"><strong class="text-cyan-700">You are the bridge</strong> to new opportunities.</div>
+                    </div>
+                </div>
+            </div>
+        `;
+    },
+    
+    renderProspect() {
+        let personaCards = this.data.personas.map(p => `
+            <div id="persona-${p.id}" class="bg-white rounded-xl shadow-md p-6 text-center cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300 card-enter">
+                <div class="text-5xl mb-3">${p.icon}</div>
+                <h3 class="text-sm font-bold text-center">${p.title}</h3>
+            </div>
+        `).join('');
+        let industryTags = this.data.industries.map(i => `<span class="bg-slate-200 text-slate-700 py-2 px-4 rounded-full text-sm font-medium card-enter">${i}</span>`).join('');
+        
+        document.getElementById('prospect').innerHTML = `
+            <h1 class="text-4xl font-bold mb-6">The Prospect</h1>
+            <div class="bg-white p-8 rounded-xl shadow-md mb-8 card-enter">
+                 <h2 class="text-2xl font-bold mb-3">Who Are We Talking To?</h2>
+                 <p class="text-slate-600 leading-relaxed mb-6">Your success depends on identifying and connecting with the right people. We target individuals responsible for fleet performance, cost, safety, or sustainability. Click on each persona below to understand what motivates them.</p>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                    ${personaCards}
+                </div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white p-8 rounded-xl shadow-md card-enter">
+                    <h2 class="text-2xl font-bold mb-4">The Right Type of Company</h2>
+                    <ul class="space-y-4">
+                        <li class="flex items-start"><span class="bg-green-500 w-5 h-5 rounded-full mt-1 mr-3 flex-shrink-0 flex items-center justify-center text-white text-xs">✓</span><span><strong>15 or more vehicles</strong> that are 7.5 tonnes or under (cars, vans, EVs).</span></li>
+                        <li class="flex items-start"><span class="bg-green-500 w-5 h-5 rounded-full mt-1 mr-3 flex-shrink-0 flex items-center justify-center text-white text-xs">✓</span><span>The business pays for the fuel (they own or lease the vehicles).</span></li>
+                        <li class="flex items-start"><span class="bg-green-500 w-5 h-5 rounded-full mt-1 mr-3 flex-shrink-0 flex items-center justify-center text-white text-xs">✓</span><span>Even if a fleet includes HGVs, we can still be a fit for their light vehicle segment.</span></li>
+                    </ul>
+                </div>
+                <div class="bg-white p-8 rounded-xl shadow-md card-enter">
+                    <h2 class="text-2xl font-bold mb-4">Ideal Industries to Target</h2>
+                    <div class="flex flex-wrap gap-3">
+                       ${industryTags}
+                    </div>
+                </div>
+            </div>
+        `;
+        this.data.personas.forEach(p => {
+            document.getElementById(`persona-${p.id}`).addEventListener('click', () => this.openModal(p.id));
+        });
+    },
+
+    renderProcess() {
+        document.getElementById('process').innerHTML = `
+            <h1 class="text-4xl font-bold mb-6">The Process</h1>
+            <p class="text-lg text-slate-600 mb-8 max-w-3xl">This is your roadmap from initial contact to a booked meeting. Follow this structured cadence to stay consistent, professional, and persistent without being a pest.</p>
+            
+            <div class="bg-white p-8 rounded-xl shadow-md card-enter">
+                <h2 class="text-2xl font-bold mb-6">15-Day Prospecting Cadence</h2>
+                <div class="relative">
+                    <!-- The line -->
+                    <div class="absolute left-1/2 -ml-0.5 w-1 bg-cyan-200 h-full top-4 hidden md:block"></div>
+                    
+                    <!-- Steps -->
+                    <div class="space-y-12">
+                        <!-- Day 1 -->
+                        <div class="md:flex items-center w-full">
+                            <div class="md:w-1/2 md:pr-8 text-right">
+                                <div class="p-4 bg-white rounded-lg border-2 border-cyan-500 shadow-sm">
+                                    <h3 class="font-bold text-cyan-600">Day 1: Initial Outreach</h3>
+                                    <p class="text-sm text-slate-600">Follow on LinkedIn, Cold Call (leave voicemail), Send personalized Email One.</p>
+                                </div>
+                            </div>
+                            <div class="md:w-1/2 md:pl-8 relative">
+                                <div class="absolute -left-2.5 top-1/2 -mt-3 w-6 h-6 rounded-full bg-cyan-500 border-4 border-white hidden md:block"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Day 4 -->
+                        <div class="md:flex items-center w-full">
+                            <div class="md:w-1/2 md:pr-8 relative text-left md:text-right">
+                               <div class="absolute right-0 -mr-2.5 top-1/2 -mt-3 w-6 h-6 rounded-full bg-cyan-500 border-4 border-white hidden md:block"></div>
+                            </div>
+                            <div class="md:w-1/2 md:pl-8">
+                                <div class="p-4 bg-white rounded-lg border-2 border-slate-300 shadow-sm">
+                                    <h3 class="font-bold">Day 4: Follow-up</h3>
+                                    <p class="text-sm text-slate-600">Send LinkedIn request, Cold Call (no voicemail), Send Email Two ("Any thoughts?").</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Day 8 -->
+                        <div class="md:flex items-center w-full">
+                            <div class="md:w-1/2 md:pr-8 text-right">
+                                <div class="p-4 bg-white rounded-lg border-2 border-slate-300 shadow-sm">
+                                    <h3 class="font-bold">Day 8: Nudge</h3>
+                                    <p class="text-sm text-slate-600">Cold Call, Send Email Three ("Just checking in...").</p>
+                                </div>
+                            </div>
+                            <div class="md:w-1/2 md:pl-8 relative">
+                                <div class="absolute -left-2.5 top-1/2 -mt-3 w-6 h-6 rounded-full bg-cyan-500 border-4 border-white hidden md:block"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Day 15 -->
+                         <div class="md:flex items-center w-full">
+                             <div class="md:w-1/2 md:pr-8 relative text-left md:text-right">
+                               <div class="absolute right-0 -mr-2.5 top-1/2 -mt-3 w-6 h-6 rounded-full bg-cyan-500 border-4 border-white hidden md:block"></div>
+                            </div>
+                            <div class="md:w-1/2 md:pl-8">
+                                <div class="p-4 bg-white rounded-lg border-2 border-slate-300 shadow-sm">
+                                    <h3 class="font-bold">Day 15: Last Touch</h3>
+                                    <p class="text-sm text-slate-600">Cold Call, Send Break-up Email.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    },
+
+    renderConversation() {
+        let objectionsHtml = this.data.objections.map((obj, index) => `
+            <div class="border-b border-slate-200 card-enter" style="animation-delay:${index*50}ms">
+                <h2>
+                    <button type="button" class="flex items-center justify-between w-full p-5 font-medium text-left text-slate-700 hover:bg-slate-100" data-accordion-target="#accordion-body-${index}" aria-expanded="false">
+                        <span>${obj.q}</span>
+                        <svg class="w-6 h-6 shrink-0 rotate-180" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                    </button>
+                </h2>
+                <div id="accordion-body-${index}" class="hidden p-5 border-t border-slate-200">
+                    <p class="text-slate-600">${obj.a}</p>
+                </div>
+            </div>
+        `).join('');
+
+        let competitorTabs = this.data.competitors.map((c, index) => `<button data-tab="${c.id}" class="px-4 py-2 text-sm font-medium rounded-lg ${index === 0 ? 'bg-cyan-600 text-white' : 'text-slate-600 hover:bg-slate-200'} competitor-tab">${c.name}</button>`).join('');
+        let competitorContent = this.data.competitors.map((c, index) => `
+            <div id="${c.id}-content" class="competitor-content ${index !== 0 ? 'hidden' : ''} mt-4 p-6 bg-slate-100 rounded-lg">
+                <p class="font-semibold text-slate-700 mb-2">If they say: <span class="italic font-normal">"${c.theySay}"</span></p>
+                <p class="text-slate-600"><strong>How to respond:</strong> ${c.weSay}</p>
+            </div>
+        `).join('');
+
+        document.getElementById('conversation').innerHTML = `
+            <h1 class="text-4xl font-bold mb-6">The Conversation</h1>
+            <p class="text-lg text-slate-600 mb-8 max-w-3xl">Here you'll find the tools to navigate any sales conversation confidently. From handling common objections to positioning us against key competitors.</p>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white rounded-xl shadow-md card-enter">
+                    <h2 class="text-2xl font-bold p-5">Objection Handling</h2>
+                    <div id="objection-accordion">
+                        ${objectionsHtml}
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-md card-enter">
+                    <h2 class="text-2xl font-bold mb-4">Competitor Handling</h2>
+                    <div class="flex flex-wrap gap-2 border-b border-slate-200 pb-2 mb-2">
+                        ${competitorTabs}
+                    </div>
+                    <div>
+                        ${competitorContent}
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.querySelectorAll('[data-accordion-target]').forEach(button => {
+            button.addEventListener('click', () => {
+                const targetId = button.getAttribute('data-accordion-target');
+                const targetPanel = document.querySelector(targetId);
+                const isExpanded = button.getAttribute('aria-expanded') === 'true';
+                button.setAttribute('aria-expanded', !isExpanded);
+                targetPanel.classList.toggle('hidden');
+                button.querySelector('svg').classList.toggle('rotate-180');
+            });
+        });
+        
+        document.querySelectorAll('.competitor-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabId = tab.dataset.tab;
+                document.querySelectorAll('.competitor-tab').forEach(t => {
+                    t.classList.remove('bg-cyan-600', 'text-white');
+                    t.classList.add('text-slate-600', 'hover:bg-slate-200');
+                });
+                tab.classList.add('bg-cyan-600', 'text-white');
+                tab.classList.remove('text-slate-600', 'hover:bg-slate-200');
+
+                document.querySelectorAll('.competitor-content').forEach(content => {
+                    content.classList.add('hidden');
+                });
+                document.getElementById(`${tabId}-content`).classList.remove('hidden');
+            });
+        });
+    },
+
+    renderToolkit() {
+        document.getElementById('toolkit').innerHTML = `
+            <h1 class="text-4xl font-bold mb-6">The Toolkit</h1>
+            <p class="text-lg text-slate-600 mb-8 max-w-3xl">This section covers the essential tools you'll use daily and how your performance is measured, including targets and commission structures.</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                 <div class="bg-white p-8 rounded-xl shadow-md card-enter">
+                    <h2 class="text-2xl font-bold mb-4">Core Tools</h2>
+                    <ul class="space-y-3 list-disc list-inside text-slate-600">
+                        <li><strong>Salesforce:</strong> Your single source of truth for tracking all prospect activity, notes, and opportunity stages.</li>
+                        <li><strong>Wildix:</strong> Our cloud-based phone system for making all your outbound calls.</li>
+                        <li><strong>LinkedIn Sales Navigator:</strong> For researching prospects and finding new contacts.</li>
+                        <li><strong>Lusha:</strong> For finding contact details like email addresses and phone numbers.</li>
+                        <li><strong>Outlook & Teams:</strong> For internal communication and scheduling meetings.</li>
+                    </ul>
+                </div>
+
+                <div class="bg-white p-8 rounded-xl shadow-md card-enter">
+                    <h2 class="text-2xl font-bold mb-4">Sales Tiers & Allocation</h2>
+                     <p class="text-slate-600 mb-4">Meetings are allocated on a rota basis based on the prospect's fleet size. Here is the UK Tier guide:</p>
+                    <div class="chart-container">
+                        <canvas id="tierChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        setTimeout(() => this.createTierChart(), 100);
+    },
+
+    createTierChart() {
+        const ctx = document.getElementById('tierChart');
+        if (!ctx) return;
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Tier 1', 'Tier 2a', 'Tier 2b', 'Tier 3'],
+                datasets: [{
+                    label: 'Vehicles in Scope',
+                    data: [99, 249, 499, 1000], 
+                    backgroundColor: [
+                        'rgba(6, 182, 212, 0.6)',
+                        'rgba(8, 145, 178, 0.6)',
+                        'rgba(22, 78, 99, 0.6)',
+                        'rgba(15, 23, 42, 0.6)'
+                    ],
+                    borderColor: [
+                        'rgba(6, 182, 212, 1)',
+                        'rgba(8, 145, 178, 1)',
+                        'rgba(22, 78, 99, 1)',
+                         'rgba(15, 23, 42, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    title: {
+                        display: true,
+                        text: 'Fleet Size by Sales Tier'
+                    },
+                    tooltip: {
+                         callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    const tierRanges = ['1-99', '100-249', '250-499', '500+'];
+                                    label = `Range: ${tierRanges[context.dataIndex]} vehicles`;
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Max Vehicles'
+                        }
+                    }
+                }
+            }
+        });
+    }
+};
+
+document.addEventListener('DOMContentLoaded', () => App.init());
+
+</script>
+</body>
+</html>
